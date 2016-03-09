@@ -41,7 +41,7 @@ URL: https://www.doordash.com/store/black-bear-diner-milpitas-8145/48236/
 ## Configuration/Installation
 First, you will want to install the requirements:
 ```
-pip install -f requirements.txt
+pip install -r requirements.txt
 ```
 
 Then, you will want to modify the LATITUDE and LONGITUDE constants:
