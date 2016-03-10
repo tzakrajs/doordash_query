@@ -146,15 +146,11 @@ if __name__ == "__main__":
     restaurants = get_restaurants(LATITUDE, LONGITUDE)
     for restaurant_id, restaurant in restaurants.iteritems():
         food_word_index = populate_food_word_index(food_word_index, restaurant)
-    word_popularity = []
-    for word, instances in food_word_index.iteritems():
-        word_popularity.append((word, len(instances)))
-    word_popularity.sort(key=lambda x:x[1], reverse=True)
-    for word, count in word_popularity:
-        print u"{0}: {1}".format(word, count)
     search_results = []
+    initial_round = True
     for term in search_terms:
         instances = food_word_index[term]
+        reduced_results = []
         for instance in instances:
             restaurant_id, menu_id, category_id, item_id = instance
             restaurant = restaurants[str(restaurant_id)]
@@ -173,16 +169,20 @@ if __name__ == "__main__":
                       'menu_name': menu['name'],
                       'category_name': category['title'],
                       'doordash_url': doordash_url}
-            search_results.append(result)
-        search_results.sort(key=lambda x:x['restaurant_name'])
+            if not initial_round and result not in search_results:
+                continue
+            reduced_results.append(result)
+        search_results = reduced_results
+        initial_round = False
+    search_results.sort(key=lambda x:x['restaurant_name'])
+    print "=================================="
+    print "Results: {0}".format(len(search_results))
+    print "=================================="
+    for search_result in search_results:
+        print u"Name: {0}".format(search_result['name'])
+        print u"Description: {0}".format(search_result['description'])
+        print u"Price: {0}".format(search_result['price'])
+        print u"Restaurant: {0}".format(search_result['menu_name'])
+        print u"Category: {0}".format(search_result['category_name'])
+        print u"URL: {0}".format(search_result['doordash_url'])
         print "=================================="
-        print "Results: {0}".format(len(search_results))
-        print "=================================="
-        for search_result in search_results:
-            print u"Name: {0}".format(search_result['name'])
-            print u"Description: {0}".format(search_result['description'])
-            print u"Price: {0}".format(search_result['price'])
-            print u"Restaurant: {0}".format(search_result['menu_name'])
-            print u"Category: {0}".format(search_result['category_name'])
-            print u"URL: {0}".format(search_result['doordash_url'])
-            print "=================================="
