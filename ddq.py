@@ -146,11 +146,11 @@ if __name__ == "__main__":
     restaurants = get_restaurants(LATITUDE, LONGITUDE)
     for restaurant_id, restaurant in restaurants.iteritems():
         food_word_index = populate_food_word_index(food_word_index, restaurant)
-    search_results = []
+    search_results = {}
     initial_round = True
     for term in search_terms:
         instances = food_word_index[term]
-        reduced_results = []
+        reduced_results = {}
         for instance in instances:
             restaurant_id, menu_id, category_id, item_id = instance
             restaurant = restaurants[str(restaurant_id)]
@@ -160,8 +160,8 @@ if __name__ == "__main__":
             price = str(item['price'])
             price = '${0}.{1}'.format(price[:-2], price[-2:])
             slug = restaurant['slug']
-            doordash_url = '{0}/store/{1}-{2}/{3}/'.format(BASE_URL,slug, 
-                                                           restaurant_id, menu_id)
+            doordash_url = '{0}/store/{1}-{2}/'.format(BASE_URL,slug, 
+                                                           restaurant_id)
             result = {'name': item['name'],
                       'description': item['description'],
                       'price': price,
@@ -169,11 +169,13 @@ if __name__ == "__main__":
                       'menu_name': menu['name'],
                       'category_name': category['title'],
                       'doordash_url': doordash_url}
-            if not initial_round and result not in search_results:
+            identifier = u'{0}-{1}'.format(restaurant['name'], item['name'])
+            if not initial_round and not search_results.get(identifier):
                 continue
-            reduced_results.append(result)
+            reduced_results[identifier] = result
         search_results = reduced_results
         initial_round = False
+    search_results = [x for key, x in search_results.iteritems()]
     search_results.sort(key=lambda x:x['restaurant_name'])
     print "=================================="
     print "Results: {0}".format(len(search_results))
@@ -182,7 +184,7 @@ if __name__ == "__main__":
         print u"Name: {0}".format(search_result['name'])
         print u"Description: {0}".format(search_result['description'])
         print u"Price: {0}".format(search_result['price'])
-        print u"Restaurant: {0}".format(search_result['menu_name'])
+        print u"Restaurant: {0}".format(search_result['restaurant_name'])
         print u"Category: {0}".format(search_result['category_name'])
         print u"URL: {0}".format(search_result['doordash_url'])
         print "=================================="
