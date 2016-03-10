@@ -60,10 +60,10 @@ def convert_to_dicts(parent, new_parent=None):
         if isinstance(parent[0], dict) and parent[0].get('id'):
             # assume all children dicts have an id key
             for child in parent:
-                new_parent[child['id']] = convert_to_dicts(child)
+                new_parent[str(child['id'])] = convert_to_dicts(child)
     elif isinstance(parent, dict) and len(parent.keys()) > 0:
         for child_key, child_value in parent.iteritems():
-            new_parent[child_key] = convert_to_dicts(child_value)
+            new_parent[str(child_key)] = convert_to_dicts(child_value)
     elif not isinstance(parent, list) and not isinstance(parent, dict):
         return parent
     return new_parent
