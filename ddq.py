@@ -17,14 +17,17 @@ JUNK_WORDS = ['of', 'a', 'in', 'and', 'with', 'on', 'or', 'our', 'the', 'w'
               '&', 'your', 'over', 'de', 'to', 'w/', 'for', 'an', 'any',
               'is', 'it', 'its', 'per', '&']
 
+
 def get_hash(seeds):
     hash = hashlib.md5()
     [hash.update(str(x)) for x in seeds]
     return hash.hexdigest()
 
+
 def cache_file_name(hash):
     cache_file_name = '{0}.{1}'.format(CACHE_FILE_PREFIX, hash)
     return cache_file_name
+
 
 def get_uri(uri):
     try:
@@ -38,6 +41,7 @@ def get_uri(uri):
     build_cache(response_text, uri)
     return response_text
 
+
 def get_cache(*args):
     hash = get_hash(args)
     cache_file = open(cache_file_name(hash), 'r+')
@@ -45,11 +49,13 @@ def get_cache(*args):
     cache_file.close()
     return obj
 
+
 def build_cache(content, *args):
     hash = get_hash(args)
     cache_file = open(cache_file_name(hash), 'w')
     cache_file.write(json.dumps(content))
     cache_file.close()
+
 
 def convert_to_dicts(parent, new_parent=None):
     """Takes a recursive list of dicts and returns recursive dict of dicts
@@ -67,6 +73,7 @@ def convert_to_dicts(parent, new_parent=None):
     elif not isinstance(parent, list) and not isinstance(parent, dict):
         return parent
     return new_parent
+
 
 def get_restaurants(latitude=LATITUDE, longitude=LONGITUDE):
     """Takes float latitude, float longitude, returns list of restaurants"""
@@ -87,18 +94,20 @@ def get_restaurants(latitude=LATITUDE, longitude=LONGITUDE):
                                                           longitude))
     return restaurants
 
+
 def extract_menu_json(menu_html):
     menu_json = re.search('var restaurantMenu = JSON.parse\("(.*)"\);',
                           menu_html)
     if menu_json:
         menu_json_unicode = menu_json.group(1)
-        #quotes
+        # quotes
         menu_json_unicode = menu_json_unicode.replace('\u0022', '"')
-        #backslash
+        # backslash
         menu_json_unicode = menu_json_unicode.replace('\u005C', '\\')
-        #hyphen/minus
+        # hyphen/minus
         menu_json_unicode = menu_json_unicode.replace('\u002D', '-')
         return json.loads(menu_json_unicode)
+
 
 def get_menus(restaurant):
     """Takes dict of restaurant attributes, returns dict with menus"""
@@ -111,9 +120,11 @@ def get_menus(restaurant):
         menu.update(menu_items)
     return convert_to_dicts(menus)
 
+
 def strip_accents(s):
-   return ''.join(c for c in unicodedata.normalize('NFD', s)
-                  if unicodedata.category(c) != 'Mn')
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                   if unicodedata.category(c) != 'Mn')
+
 
 def extract_food_words(item):
     words = u'{0} {1}'.format(item['description'], item['name'])
@@ -124,6 +135,7 @@ def extract_food_words(item):
     regex = re.compile('[\-/]')
     words = regex.sub(' ', words)
     return words.lower().split()
+
 
 def populate_food_word_index(food_word_index, restaurant):
     restaurant_id = restaurant['id']
@@ -160,8 +172,8 @@ if __name__ == "__main__":
             price = str(item['price'])
             price = '${0}.{1}'.format(price[:-2], price[-2:])
             slug = restaurant['slug']
-            doordash_url = '{0}/store/{1}-{2}/'.format(BASE_URL,slug, 
-                                                           restaurant_id)
+            doordash_url = '{0}/store/{1}-{2}/'.format(BASE_URL, slug,
+                                                       restaurant_id)
             result = {'name': item['name'],
                       'description': item['description'],
                       'price': price,
@@ -176,7 +188,7 @@ if __name__ == "__main__":
         search_results = reduced_results
         initial_round = False
     search_results = [x for key, x in search_results.iteritems()]
-    search_results.sort(key=lambda x:x['restaurant_name'])
+    search_results.sort(key=lambda x: x['restaurant_name'])
     print "=================================="
     print "Results: {0}".format(len(search_results))
     print "=================================="
