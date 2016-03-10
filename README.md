@@ -28,7 +28,6 @@ Restaurant: Wahoo's Fish Taco
 Category: Burritos
 URL: https://www.doordash.com/store/wahoo-s-fish-taco-san-jose-537/
 ==================================
-…
 ```
 
 ## Configuration/Installation
